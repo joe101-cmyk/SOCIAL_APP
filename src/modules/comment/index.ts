@@ -1,0 +1,1 @@
+export {default as commentrouter} from "./comment.controller.js";
