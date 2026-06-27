@@ -29,3 +29,11 @@ export enum Logout {
     LOGOUT="LOGOUT",
     LOGOUT_FROM_ALL = "LOGOUT_FROM_ALL"
 }
+
+export enum isavaliblity{
+    public,
+    Frindes,
+    only_me,
+
+
+}

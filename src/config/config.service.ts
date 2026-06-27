@@ -2,9 +2,8 @@ import path from "path";
 import dotenv from "dotenv";
 
 dotenv.config({
-  path: path.join(process.cwd(), "Ts/src/config/.env.dev"),
+  path: path.join(process.cwd(), "src/config/.env.dev"),
 });
-
 
 function getEnv(key: string): string {
   const value = process.env[key];

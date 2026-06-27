@@ -65,4 +65,16 @@ firstname:z.string({error:"First Name requried"})
 lastname:z.string({error:"Last Name requried"})
 .min(3,{error:"Last Name at least 3"})
 .max(20,{error:"Last Name Max 20 "}),
-};
+file:function(mimeType:string[]){
+  return z.strictObject({
+    filedname:z.string({error:"File Name requried"}),
+    mimetype:z.string({error:"File Type requried"}),
+    encoding:z.string({error:"File Encoding requried"}),
+    mimeType:z.enum(mimeType,{error:"File Type Not Allowed"}),
+    path:z.string({error:"File Path requried"}).optional(),
+    size:z.number({error:"File Size requried"}).optional(),
+
+  })
+
+}
+}

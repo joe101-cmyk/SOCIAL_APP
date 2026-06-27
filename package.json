@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "main": "dist/main.js",
-  "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/main.ts",
-    "build": "tsc",
-    "start": "node dist/main.js"
-  },
+"scripts": {
+  "dev": "tsx watch src/main.ts",
+  "start": "tsx src/main.ts"
+},
   "dependencies": {
     "@types/jsonwebtoken": "^9.0.10",
     "bcrypt": "^6.0.0",
@@ -16,6 +15,8 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.4.1",
+    "firebase": "^12.15.0",
+    "firebase-admin": "^14.1.0",
     "google-auth-library": "^10.7.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
