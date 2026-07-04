@@ -5,7 +5,7 @@ import {
     Notfound
 } from "../../utils/response/error.js";
 import { UserRepository } from "../../DB/repositry/user.repo.js";
-import { User } from "../../DB/models/user.model.js";
+import { User_model } from "../../DB/models/user.model.js";
 import {
     comapareHash,
     generateHash
@@ -19,7 +19,7 @@ import {
 class authsercice {
 
     private _tokenservice: TokenService;
-    private _usermodel = new UserRepository(User);
+    private _usermodel = new UserRepository(User_model);
 
     constructor() {
         this._tokenservice = new TokenService();

@@ -11,7 +11,7 @@ import "./config/config.service.js";
 import { connectDB } from "./DB/connect.js";
 import { request } from "node:http";
 import { connectRedis } from "./DB/readis.connection.js";
-import { User, Userschema } from "./DB/models/user.model.js";
+import { User_model, Userschema } from "./DB/models/user.model.js";
 const limit= rateLimit({
     windowMs:15*60*1000,
     max:20,
@@ -35,7 +35,7 @@ export const bootstrap = async()=>{
     
     await connectRedis();
     
-    const user = new User({
+    const user = new User_model({
     "firstname": "Ahmed",
     "lastname": "Mohamed",
     "username": "Ahmed Mohaasmed",

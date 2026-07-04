@@ -123,7 +123,7 @@ Userschema.post("save", async function (){
 
 });
 
-export const User = mongoose.model<Iuser>(
+export const User_model = mongoose.model<Iuser>(
     "User",
     Userschema
 );
