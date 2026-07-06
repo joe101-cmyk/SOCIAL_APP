@@ -1,3 +1,4 @@
+
 import express, { NextFunction } from "express";
 import { Request,Response } from "express";
 import { Express } from "express";
@@ -12,6 +13,12 @@ import { connectDB } from "./DB/connect.js";
 import { request } from "node:http";
 import { connectRedis } from "./DB/readis.connection.js";
 import { User_model, Userschema } from "./DB/models/user.model.js";
+import { createHandler } from 'graphql-http/lib/use/express';
+import { authentication } from "./middleware/auth.middleware.js";
+import { TokenTypeEnum } from "./utils/enum/auth.enum.js";
+import { SchemaMetaFieldDef } from "graphql";
+import { Schema } from "mongoose";
+import { querys } from "./graphql/schema.js";
 const limit= rateLimit({
     windowMs:15*60*1000,
     max:20,
@@ -23,10 +30,8 @@ const limit= rateLimit({
 
 
 
-
-
-
 export const bootstrap = async()=>{
+
     
     const app:Express = express();
     app.use(express.json(),cors(),helmet(),limit);
@@ -35,14 +40,20 @@ export const bootstrap = async()=>{
     
     await connectRedis();
     
-    const user = new User_model({
-    "firstname": "Ahmed",
-    "lastname": "Mohamed",
-    "username": "Ahmed Mohaasmed",
-    "email": `${Date.now()}gmail.com`,
-    "password": "123456",
-    "confirmPassword": "123456"
-}).save();
+
+// app.all("/graphql",authentication({tokenType:TokenTypeEnum.Access}),createHandler({schema:querys}))
+
+    app.all("/graphql",createHandler({schema:querys}));
+
+
+//     const user = new User_model({
+//     "firstname": "Ahmed"
+//     "lastname": "Mohamed",
+//     "username": "Ahmed Mohamed",
+//     "email": `${Date.now()}gmail.com`,
+//     "password": "123456",
+//     "confirmPassword": "123456"
+// }).save();
     
     app.get("/",(req:Request,res:Response,next:NextFunction):Response=>{
         return res.status(200).json({message:"Hello Ts"});

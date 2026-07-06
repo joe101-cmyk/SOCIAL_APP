@@ -23,6 +23,11 @@ export enum TokenTypeEnum{
     Refresh ="Refresh"
 }
 
+export enum Web_enum{
+    google="google",
+    facebook="facebook",
+    apple="apple"
+}
 
 
 export enum Logout {
