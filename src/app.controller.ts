@@ -2,9 +2,10 @@
 import express, { NextFunction } from "express";
 import { Request,Response } from "express";
 import { Express } from "express";
+
 import helmet from "helmet";
 import cors from "cors";
-
+import  { Server, Socket } from "socket.io";
 import { authrouter,postrouter,commentrouter,userrouter } from "./modules/index.js";
 import rateLimit, { RateLimitExceededEventHandler } from "express-rate-limit";
 import { Badrequestextiption, globalmiddleware } from "./utils/response/error.js";
@@ -14,11 +15,13 @@ import { request } from "node:http";
 import { connectRedis } from "./DB/readis.connection.js";
 import { User_model, Userschema } from "./DB/models/user.model.js";
 import { createHandler } from 'graphql-http/lib/use/express';
-import { authentication } from "./middleware/auth.middleware.js";
+import { authentication, authorization } from "./middleware/auth.middleware.js";
 import { TokenTypeEnum } from "./utils/enum/auth.enum.js";
 import { SchemaMetaFieldDef } from "graphql";
 import { Schema } from "mongoose";
 import { querys } from "./graphql/schema.js";
+import { decode } from "jsonwebtoken";
+import { TokenService } from "./utils/Token/Token.js";
 const limit= rateLimit({
     windowMs:15*60*1000,
     max:20,
@@ -36,14 +39,18 @@ export const bootstrap = async()=>{
     const app:Express = express();
     app.use(express.json(),cors(),helmet(),limit);
     const PORT = process.env.PORT||5000;
-    await connectDB();
-    
-    await connectRedis();
-    
+        await connectDB();
+        await connectRedis();
+        const token_service = new TokenService();
 
 // app.all("/graphql",authentication({tokenType:TokenTypeEnum.Access}),createHandler({schema:querys}))
 
     app.all("/graphql",createHandler({schema:querys}));
+
+
+
+
+
 
 
 //     const user = new User_model({
@@ -66,12 +73,55 @@ app.use(globalmiddleware)
     app.use("/api/post",postrouter);    
         app.use("{/*dummy}",(req:Request,res:Response):Response=>{
             // return res.status(404).json({message:"Not Found Handelare"})
-            throw new Badrequestextiption("not Found Handelare !!")
+            throw new Badrequestextiption("not Found Handler !!")
         })
 
-    app.listen(PORT,()=>{
+    const http_server = app.listen(PORT,()=>{
             console.log(`Server running on http://localhost:${PORT}`);
         
     })
 
-}
+
+    const connect_socket = new  Map<string,string>();
+
+        const io = new Server(http_server, {
+    cors: {
+        origin: "*"
+    }
+});
+
+io.on("connection", (socket: Socket) => {
+
+    console.log("Client Connected:", socket.id);
+
+    socket.emit("product", {
+        id: 1,
+        name: "Laptop"
+    });
+
+    socket.on("sayHI", (callback) => {
+        console.log("HI from Client");
+
+        callback("Hello from Server");
+    });
+
+    io.use(async(socket:Socket,next)=>{
+        try {
+            await token_service.decodeToken({
+                authorization:socket.handshake.auth.authorization as string,
+                tokenType:TokenTypeEnum.Access,
+            })
+            
+        } catch (error) {
+                next(new Error("Authentication failed"));
+        }
+    })
+
+    socket.on("disconnect", () => {
+        console.log("Client Disconnected:", socket.id);
+    });
+
+})};
+
+
+export default bootstrap;
