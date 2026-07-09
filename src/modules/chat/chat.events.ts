@@ -1,0 +1,17 @@
+export const chatEvents = {
+  CONNECTION: "connection",
+  DISCONNECT: "disconnect",
+  AUTHENTICATED: "authenticated",
+  PRIVATE_MESSAGE: "private_message",
+  ROOM_MESSAGE: "room_message",
+  GROUP_MESSAGE: "group_message",
+  JOIN_ROOM: "join_room",
+  LEAVE_ROOM: "leave_room",
+  CREATE_ROOM: "create_room",
+  CREATE_GROUP: "create_group",
+  TYPING_START: "typing_start",
+  TYPING_STOP: "typing_stop",
+  ERROR: "chat_error",
+  MESSAGE_RECEIVED: "message_received",
+  ROOM_MEMBERS_UPDATED: "room_members_updated",
+};
