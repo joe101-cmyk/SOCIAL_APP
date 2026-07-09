@@ -1,9 +1,9 @@
-import mongoose, { HydratedDocument, Schema } from "mongoose";
+import mongoose, { HydratedDocument, Schema, Types } from "mongoose";
 import { GenderEnum, RoleEnum } from "../../utils/enum/auth.enum.js";
-import { EventEmitter } from "node:stream";
 import { generateHash } from "../../utils/security/Hash.js";
 
 export interface Iuser {
+    _id: Types.ObjectId;
     firstname: string;
     lastname: string;
     username: string;
@@ -95,32 +95,42 @@ export const Userschema = new Schema<Iuser>(
     }
 );
 
+// ====================== Virtual ======================
 
 Userschema.virtual("fullname").get(function (this: Iuser) {
     return `${this.firstname} ${this.lastname}`;
 });
 
+// ====================== Middleware ======================
 
-
+// Validate
 Userschema.pre("validate", function () {
     console.log("Pre Validate");
 });
 
+// Save
 Userschema.pre("save", async function () {
     console.log("Pre Save");
+
+    if (!this.isModified("password")) return;
+
+    console.log("Password has been modified");
+    this.password = await generateHash(this.password);
 });
 
+// Update
+Userschema.pre("findOneAndUpdate", async function () {
+    const update = this.getUpdate() as any;
+
+    if (update?.password) {
+        update.password = await generateHash(update.password);
+    }
+});
+
+// After Save
 Userschema.post("save", function (doc, next) {
     console.log("Post Save", doc);
     next();
-});
-
-Userschema.post("save", async function (){
-    if(this.isModified("password")){
-        console.log("Password has been modified");
-        this.password = await generateHash(this.password);
-    }
-
 });
 
 export const User_model = mongoose.model<Iuser>(
@@ -128,5 +138,4 @@ export const User_model = mongoose.model<Iuser>(
     Userschema
 );
 
-export type HydratedUserDocument =
-    HydratedDocument<Iuser>;
+export type HydratedUserDocument = HydratedDocument<Iuser>;
