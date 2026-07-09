@@ -15,6 +15,14 @@ export interface Iuser {
     address?: string;
     gender: GenderEnum;
     role: RoleEnum;
+    profileImage?: string;
+    coverImage?: string;
+    bio?: string;
+    followers?: Types.ObjectId[];
+    following?: Types.ObjectId[];
+    isDeleted?: boolean;
+    deletedAt?: Date;
+    fcmTokens?: string[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -49,27 +57,19 @@ export const Userschema = new Schema<Iuser>(
             unique: true,
         },
 
-        confirmemailOTP: {
-            type: String,
-        },
-
-        confirmemail: {
-            type: Date,
-        },
-
-        password: {
-            type: String,
-            required: true,
-        },
-
-        phone: {
-            type: String,
-        },
-
-        address: {
-            type: String,
-        },
-
+        confirmemailOTP: { type: String },
+        confirmemail: { type: Date },
+        password: { type: String, required: true },
+        phone: { type: String },
+        address: { type: String },
+        profileImage: { type: String },
+        coverImage: { type: String },
+        bio: { type: String },
+        followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+        following: [{ type: Schema.Types.ObjectId, ref: "User" }],
+        isDeleted: { type: Boolean, default: false },
+        deletedAt: { type: Date },
+        fcmTokens: [{ type: String }],
         gender: {
             type: String,
             enum: Object.values(GenderEnum),
@@ -84,41 +84,20 @@ export const Userschema = new Schema<Iuser>(
     },
     {
         timestamps: true,
-
-        toJSON: {
-            virtuals: true,
-        },
-
-        toObject: {
-            virtuals: true,
-        },
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
     }
 );
-
-// ====================== Virtual ======================
 
 Userschema.virtual("fullname").get(function (this: Iuser) {
     return `${this.firstname} ${this.lastname}`;
 });
 
-// ====================== Middleware ======================
-
-// Validate
-Userschema.pre("validate", function () {
-    console.log("Pre Validate");
-});
-
-// Save
 Userschema.pre("save", async function () {
-    console.log("Pre Save");
-
     if (!this.isModified("password")) return;
-
-    console.log("Password has been modified");
     this.password = await generateHash(this.password);
 });
 
-// Update
 Userschema.pre("findOneAndUpdate", async function () {
     const update = this.getUpdate() as any;
 
@@ -127,15 +106,6 @@ Userschema.pre("findOneAndUpdate", async function () {
     }
 });
 
-// After Save
-Userschema.post("save", function (doc, next) {
-    console.log("Post Save", doc);
-    next();
-});
-
-export const User_model = mongoose.model<Iuser>(
-    "User",
-    Userschema
-);
+export const User_model = mongoose.model<Iuser>("User", Userschema);
 
 export type HydratedUserDocument = HydratedDocument<Iuser>;
